@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedicalNarratives: Connecting Medical Vision and Language with Localized Narratives</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  
+<style>
+
+  .title {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+
+
+#dataset-carousel .carousel-button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid black;  
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#dataset-carousel .carousel-button.active {
+  background: black;  
+}
+
+#dataset-carousel .carousel-prev,
+#dataset-carousel .carousel-next {
+  background: rgba(0, 0, 0, 0.7);  
+  color: white;
+  border: 2px solid black;  
+}
+  
+.carousel-container {
+  width: 100%;        
+  max-width: 1000px; 
+  margin: 0 auto;    
+  padding: 0 20px;    
+}
+
+.carousel-nav {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+}
+
+
+.carousel-button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-button.active {
+  background: white;
+}
+
+.carousel {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  height: 700px; 
+  margin: 0 auto;
+}
+
+#modality-carousel {
+  width: 150%; /* Carousel is 150% of the container width */
+  aspect-ratio: 3 / 1; /* Aspect ratio of 3:2 (width:height) */
+  position: relative;
+  left: 50%; /* Move the left edge to the center of the container */
+  transform: translateX(-50%); /* Shift the element back by half its width */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto; /* Let height adjust dynamically based on width and aspect ratio */
+}
+
+
+
+#modality-carousel .item video {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background: #000; 
+}
+
+
+.carousel .item {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel .item.active {
+  display: flex;
+}
+
+.carousel video {
+  width: 150%;
+  height: auto;
+  object-fit: contain;
+  background: #000; 
+}
+
+.carousel-prev,
+.carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 2px solid white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 20;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.carousel-prev {
+  left: 20px;
+}
+
+.carousel-next {
+  right: 20px;
+}
+
+  section.section {
+    padding: 3rem 1.5rem;
+  }
+
+  section.section:not(:last-child) {
+    margin-bottom: 0;
+  }
+
+  .container.is-max-desktop {
+  width: 100%;
+  max-width: 1200px;  
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+  .hero.is-light.is-small {
+    padding: 3rem 0;
+  }
+
+  .hero.is-light.is-small .hero-body {
+    padding: 1.5rem;
+  }
+</style>
+
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+  function initializeCarousel(carouselId) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel) return;
+
+    const items = carousel.getElementsByClassName('item');
+    const buttons = carousel.getElementsByClassName('carousel-button');
+    const prevButton = carousel.querySelector('.carousel-prev');
+    const nextButton = carousel.querySelector('.carousel-next');
+    let currentIndex = 0;
+
+    Array.from(items).forEach(item => {
+      const video = item.querySelector('video');
+      if (video) {
+        video.load();
+      }
+    });
+
+    function showItem(index) {
+      items[currentIndex].classList.remove('active');
+      buttons[currentIndex].classList.remove('active');
+      
+      items[index].classList.add('active');
+      buttons[index].classList.add('active');
+      
+
+      const currentVideo = items[currentIndex].querySelector('video');
+      const nextVideo = items[index].querySelector('video');
+      
+      if (currentVideo) currentVideo.pause();
+      if (nextVideo) {
+        nextVideo.currentTime = 0;
+        nextVideo.play();
+      }
+      
+      currentIndex = index;
+    }
+    Array.from(buttons).forEach(button => {
+      button.addEventListener('click', () => {
+        const index = parseInt(button.dataset.index);
+        showItem(index);
+      });
+    });
+
+    prevButton.addEventListener('click', () => {
+      let newIndex = currentIndex - 1;
+      if (newIndex < 0) newIndex = items.length - 1;
+      showItem(newIndex);
+    });
+
+    nextButton.addEventListener('click', () => {
+      let newIndex = currentIndex + 1;
+      if (newIndex >= items.length) newIndex = 0;
+      showItem(newIndex);
+    });
+  }
+  initializeCarousel('modality-carousel');
+  initializeCarousel('dataset-carousel');
+});
+</script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://quilt1m.github.io/">
+            Quilt-1M
+          </a>
+          <a class="navbar-item" href="https://quilt-llava.github.io/">
+            Quilt-LLaVA
+          </a>
+          <a class="navbar-item" href="https://medical-narratives.github.io/">
+            MedicalNarratives
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">PathFinder: A Multi-Modal Multi-Agent System for Medical Diagnostic Decision-Making Applied to Histopathology</h1>
+          <div class="is-size-5 publication-authors">
+            <!-- Add authors here -->
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://fghezloo.github.io/">Fatemeh Ghezloo</a><sup>1,2</sup><sup><span>&#9733;</span></sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://mehmetsayginseyfioglu.github.io/">Mehmet Saygin Seyfioglu</a><sup>1</sup><sup><span>&#9733;</span></sup>,</span>
+                <span class="author-block">
+                  <a>Rustin Soraki</a><sup>1</sup><sup><span>&#9733;</span></sup>,</span>
+              <span class="author-block">
+                <a href="https://wisdomikezogwo.github.io/">Wisdom O. Ikezogwo</a><sup>1</sup><sup><span>&#9733;</span></sup>,</span>
+              <span class="author-block">
+                <a href="https://www.beibinli.com/">Beibin Li</a><sup>2</sup><sup><span>&#9733;</span></sup></span>
+              </div>
+              <div class="is-size-5 publication-authors"></div>
+                <span class="author-block">
+                    <a >Tejoram Vivekanandan</a><sup>1</sup>,</span>
+                <a href="https://profiles.ucla.edu/joann.elmore">Joann G. Elmore</a><sup>3</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://ranjaykrishna.com/index.html">Ranjay Krishna</a><sup>1,4</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~shapiro/">Linda Shapiro</a><sup>1</sup>
+              </span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block" style="margin-right: 90px;"><sup>1</sup> University of Washington</span> 
+              <span class="author-block"><sup>2</sup> Microsoft Research</span><br>
+              <span class="author-block" style="margin-right: 30px;"><sup>3</sup> David Geffen School of Medicine, UCLA</span>
+              <span class="author-block"><sup>4</sup> Allen Institute for AI</span><br>
+              <span class="author-block new-line"><sup><span>&#9733;</span></sup>Equal Contribution</span>
+            </div>
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded">
+                    <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded custom-button">
+                    <span class="icon">
+                        <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code (Coming Soon)</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded custom-button">
+                    <span class="icon">
+                        <i class="far fa-images"></i>
+                    </span>
+                    <span>Data (Coming Soon)</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded custom-button">
+                    <span class="icon">
+                        <i class="fas fa-cogs"></i>
+                    </span>
+                    <span>Models (Coming Soon)</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+ <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+     <div class="carousel-container">
+  <div id="modality-carousel" class="carousel">
+    <div class="item active">
+      <video autoplay muted loop playsinline>
+        <source src="static/videos/ct_fix2.mp4" type="video/mp4" style="width: 100%; height: auto;">
+      </video>
+    </div>
+  </div>
+</div>
+      
+      <h2 class="subtitle has-text-centered">
+        PathFinder demonstrates an AI-driven multi-agent framework for medical decision-making, showcasing how it navigates data, collects evidence, and generates interpretable diagnoses through collaborative agents.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Key Takeaways</h2>
+        <div class="content has-text-justified">
+          <ul>
+            <li>Proposed PathFinder, a multi-modal, multi-agent AI framework for medical decision-making, designed to navigate complex data, collect evidence, and provide interpretable diagnoses.</li>
+            <li>Integrates four AI agents—Triage, Navigation, Description, and Diagnosis—collaborating for efficient and interpretable diagnostics.</li>
+            <li>Achieves state-of-the-art performance, trained and evaluated on the M-Path Skin Biopsy dataset with 74% accuracy, surpassing pathologists by 9% and outperforming existing AI models by 8%.</li>
+            <li>Enhances transparency and explainability, with AI-generated descriptions comparable to GPT-4o, supporting pathologist validation.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+         <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Diagnosing diseases through histopathology whole slide images (WSIs) is fundamental in modern pathology but is challenged by the gigapixel scale and complexity of WSIs. Trained histopathologists overcome this challenge by navigating the WSI, looking for relevant patches, taking notes, and compiling them to produce a final holistic diagnostic. Traditional AI approaches, such as multiple instance learning and transformer-based models, fail short of such a holistic, iterative, multi-scale diagnostic procedure, limiting their adoption in the real-world. We introduce PathFinder, a multi-modal, multi-agent framework that emulates the decision-making process of expert pathologists. PathFinder integrates four AI agents—the Triage Agent, Navigation Agent, Description Agent, and Diagnosis Agent—that collaboratively navigate WSIs, gather evidence, and provide comprehensive diagnoses with natural language explanations. The Triage Agent classifies the WSI as benign or risky; if risky, the Navigation and Description Agents iteratively focus on significant regions, generating importance maps and descriptive insights of sampled patches. Finally, the Diagnosis Agent synthesizes the findings to determine the patient's diagnostic classification. Our Experiments show that PathFinder outperforms state-of-the-art methods in skin melanoma diagnosis by 8% while offering inherent explainability through natural language descriptions of diagnostically relevant patches. Qualitative analysis by pathologists shows that the Description Agent’s outputs are of high quality and comparable to GPT-4o. PathFinder is also the first AI-based system to surpass the average performance of  pathologists in this challenging melanoma classification task by 9%, setting a new record for efficient, accurate, and interpretable AI-assisted diagnostics in pathology.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Method Overview Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">Method Overview</h2>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content">
+          <p>
+            We present PathFinder, a multi-modal, multi-agent AI framework for medical decision-making. PathFinder emulates expert diagnostic workflows by integrating multiple AI agents to iteratively analyze data, collect evidence, and generate interpretable diagnoses. Overall, PathFinder operates as follows:
+          </p>
+        </div>
+        <div class="content">
+          <ul>
+            <li><strong>Triage Agent</strong> assesses medical data to determine initial risk classification.</li>
+            <li><strong>Navigation Agent</strong> identifies and prioritizes key regions for further analysis, refining its focus iteratively.</li>
+            <li><strong>Description Agent</strong> generates natural language descriptions of diagnostically relevant findings.</li>
+            <li><strong>Diagnosis Agent</strong> synthesizes collected evidence to provide a final classification with an explainable decision-making process.</li>
+          </ul>
+        </div>        
+        <p>
+          This agentic approach enables efficient, transparent, and human-like diagnostic reasoning, surpassing traditional AI methods in accuracy and interpretability.
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <img src="static/images/navigation-simple-pipline2.png" alt="PathFinder pipeline" style="width: 100%;">
+      </div>
+    </div>
+    <!-- <div class="columns is-centered">
+      <div class="column is-full-width">
+        <img src="static/images/navigation-main.png" alt="Agnets details" style="width: 100%;">
+      </div> -->
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Results Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Results</h2>
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="content has-text-justified">
+          <p>
+            
+            We conducted comprehensive experiments to evaluate PathFinder by examining different architectures for each agent component, achieving 74% accuracy that surpasses both human experts (65%) and previous state of the art (66% best).
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <img src="static/images/results.jpeg" alt="M-Path diagnosis results" style="width: 80%; display: block; margin: auto;">
+        <p class="has-text-centered">
+          Majority voting performance for whole slide image (WSI) diagnosis on the M-Path dataset. 
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <img src="static/images/traj_ablations.jpeg" alt="Number of Trajectory Ablations" style="width: 80%; display: block; margin: auto;">
+        <p class="has-text-centered">
+          Ablation results. We ran 10 experiments, and plotted both the mean and standard deviation. 
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@misc{ghezloo2025pathfinder,
+      title={PathFinder: A Multi-Modal Multi-Agent System for Medical Diagnostic Decision-Making Applied to Histopathology}, 
+      author={Fatemeh Ghezloo and Mehmet Saygin Seyfioglu and Rustin Soraki and Wisdom O. Ikezogwo and Beibin Li and Tejoram Vivekanandan and Joann G. Elmore and Ranjay Krishna and Linda Shapiro},
+      year={2025},
+      eprint={},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={}, 
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
