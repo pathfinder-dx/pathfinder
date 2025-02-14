@@ -51,7 +51,7 @@
   
 .carousel-container {
   width: 100%;        
-  max-width: 1000px; 
+  max-width: 1500px; 
   margin: 0 auto;    
   padding: 0 20px;    
 }
@@ -91,8 +91,8 @@
 }
 
 #modality-carousel {
-  width: 150%; /* Carousel is 150% of the container width */
-  aspect-ratio: 3 / 1; /* Aspect ratio of 3:2 (width:height) */
+  width: 100%; /* Carousel is 150% of the container width */
+  aspect-ratio: 1 / 1; /* Aspect ratio of 3:2 (width:height) */
   position: relative;
   left: 50%; /* Move the left edge to the center of the container */
   transform: translateX(-50%); /* Shift the element back by half its width */
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div id="modality-carousel" class="carousel">
     <div class="item active">
       <video autoplay muted loop playsinline>
-        <source src="static/videos/ct_fix2.mp4" type="video/mp4" style="width: 100%; height: auto;">
+        <source src="static/videos/pathfinder-demo.mp4" type="video/mp4" style="width: auto; height: 100%;">
       </video>
     </div>
   </div>
