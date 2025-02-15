@@ -185,6 +185,12 @@
   .hero.is-light.is-small .hero-body {
     padding: 1.5rem;
   }
+  .small-video {
+  width: 80%;
+  max-width: 800px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 </style>
 
  <script>
@@ -372,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="hero-body">
     <div class="container">
         <div class="item item-steve">
-          <video poster="" id="demo" autoplay controls muted loop playsinline height="100%">
+          <video class="small-video" poster="" id="demo" autoplay controls muted loop playsinline>
             <source src="static/videos/pathfinder-demo.mp4"
                     type="video/mp4">
           </video>
